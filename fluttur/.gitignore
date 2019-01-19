@@ -18,7 +18,7 @@
 
 # Visual Studio Code related
 .vscode/
-*.code-workspace
+fluttur.code-workspace
 
 # Flutter/Dart/Pub related
 **/doc/api/
