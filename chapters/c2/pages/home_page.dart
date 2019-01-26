@@ -94,6 +94,26 @@ class _HomePageState extends State<HomePage> {
     store.resumeEvents();
   }
 
+  Widget _getBodyWidget() {
+    if (StoreFactory().get("InventoryModel").isLoaded == false) {
+      return Center(
+        child: CircularProgressIndicator(
+          key: Key("loading_home_page"),
+        ),
+      );
+    } else {
+      return StoreFactory().get("InventoryModel").count == 0
+          ? Center(
+              child: Text(
+                "Your inventory is empty. Please add some items to inventory.",
+                textAlign: TextAlign.center,
+              ),
+            )
+          : InventoryList(StoreFactory().get("InventoryModel"), this._models,
+              "HomeInventoryList");
+    }
+  }
+
   // Build could be called immediately after deactivation or activation.
   @override
   Widget build(BuildContext context) {
@@ -120,15 +140,7 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: StoreFactory().get("InventoryModel").count == 0
-          ? Center(
-              child: Text(
-                "Your inventory is empty. Please add some items to inventory.",
-                textAlign: TextAlign.center,
-              ),
-            )
-          : InventoryList(StoreFactory().get("InventoryModel"), this._models,
-              "HomeInventoryList"),
+      body: _getBodyWidget(),
       floatingActionButton: FloatingActionButton(
         key: Key("AddToInventory"),
         onPressed: () {

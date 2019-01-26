@@ -5,6 +5,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'abstractfilestorage.dart';
+
 /**
  *  FileStorage will act as a utility class to perform file operations on device.
  * Following file operations are supported now.
@@ -19,7 +21,7 @@ import 'dart:io';
  * 
 */
 
-class FileStorage {
+class FileStorage extends AbstractFileStorage {
   final String fileName;
   final Future<Directory> Function() getDocumentDirectory;
 

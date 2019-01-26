@@ -3,20 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:fluttur/inventory/store.dart';
-import 'package:fluttur/inventory/jsonstore.dart';
-import 'package:fluttur/inventory/config.dart';
-
-/// Dart doesn't support reflection. A better way to create stores dynamically was to use reflection.
-/// Instead, we will use the old school method - This is proven and should work any day.
-///
-/// Use this class to get an instance of a store from anywher in your class.
-/// Store manager might require a configuration to configure store for the very first time.
-/// Later on, the stores can be accessed using the store name.
-/// Stores are created only once for a particular modeltype.
-///
-///
-
-// TODO - Support multiple model for a same store type.
 
 class StoreFactory {
   static final StoreFactory _instance = new StoreFactory._internal();
@@ -33,32 +19,19 @@ class StoreFactory {
 
   StoreFactory._internal();
 
-  Store configure(Map<String, Object> jsonData) {
-    if (null == jsonData || false == jsonData.containsKey("modelName")) {
-      throw new Exception("Failed to configure store. "
-          " Make sure modelName is supplied in the config param.");
+  void attach(String modelName, Store store) {
+    if (_stores.containsKey(modelName)) {
+      throw new Exception("A store is already associated with $modelName");
     }
+    _stores[modelName] = store;
+  }
 
-    String modelName = jsonData['modelName'];
-    String storeName = Config().getModelStore(modelName);
+  void detach(String modelName) {
+    this._stores.remove(modelName);
+  }
 
-    if (this._stores.containsKey(modelName)) {
-      return this._stores[modelName];
-    }
-
-    Store st;
-
-    switch (storeName) {
-      case "JsonStore":
-        st = new JsonStore(modelName: modelName, storage: jsonData["storage"]);
-        break;
-    }
-
-    if (null != st) {
-      this._stores[modelName] = st;
-    }
-
-    return st;
+  void clear() {
+    this._stores.clear();
   }
 
   // Get the store using the model name.

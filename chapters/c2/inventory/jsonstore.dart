@@ -6,13 +6,10 @@ import 'dart:convert';
 
 import 'package:fluttur/inventory/model.dart';
 import "package:flutter/material.dart";
-import 'package:fluttur/inventory/storage/filestorage.dart';
+import 'package:fluttur/inventory/storage/abstractfilestorage.dart';
 import 'package:mutex/mutex.dart';
 import 'package:fluttur/inventory/store.dart';
 import 'package:fluttur/inventory/modelfactory.dart';
-
-// TODO - At present support only single store for a single model.
-// TODO - Need to implement support for different models in the store.
 
 class JsonStore<T extends Model> extends Store<T> {
   List<T> _records = List<T>();
@@ -20,7 +17,7 @@ class JsonStore<T extends Model> extends Store<T> {
   final Mutex _m = new Mutex();
   final String modelName;
 
-  final FileStorage storage;
+  final AbstractFileStorage storage;
   bool _initialized = false;
 
   JsonStore({@required this.storage, @required this.modelName}) {

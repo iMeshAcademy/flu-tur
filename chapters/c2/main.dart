@@ -3,21 +3,14 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:fluttur/inventory/storage/filestorage.dart';
-import 'package:fluttur/inventory/storefactory.dart';
 import 'package:fluttur/pages/home_page.dart';
 import 'package:fluttur/pages/inventory_stat.dart';
+import 'package:fluttur/inventory/config.dart';
 
 void main() {
-  Map<String, Object> config = {
-    "modelName": "InventoryModel",
-    "storage":
-        const FileStorage("inventory.json", getApplicationDocumentsDirectory)
-  };
+  Config().initialize();
 
-  StoreFactory().configure(config);
-  runApp(MyApp()); 
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
