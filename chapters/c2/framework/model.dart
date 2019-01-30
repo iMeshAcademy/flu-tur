@@ -2,29 +2,18 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:flutter/material.dart';
-import 'package:fluttur/inventory/storefactory.dart';
+import 'package:meta/meta.dart';
+import 'storefactory.dart';
 
 abstract class Model {
-  @protected
-  final String model;
-  @protected
-  String id = '';
+  final String modelName;
+
+  String _id = '';
 
   @protected
   bool get isModified;
 
-  Model({@required this.model});
-
-  String get modelName => model;
-
-  // Abstract function to convert the string to json.
-  Map<String, Object> toJson();
-
-  String get key => this.id;
-
-  set key(String value) => this.id = value;
-
+  Model({@required this.modelName});
   Future save() async {
     if (isModified) {
       var store = StoreFactory().get(modelName);
@@ -35,4 +24,15 @@ abstract class Model {
       }
     }
   }
+
+  String get key => this._id;
+  set key(String value) {
+    if (this._id.trim().length > 0) {
+      return;
+    }
+
+    this._id = value;
+  }
+
+  Map<String, Object> toJson();
 }

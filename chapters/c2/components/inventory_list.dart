@@ -3,15 +3,16 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:fluttur/inventory/model.dart';
-import 'package:fluttur/inventory/store.dart';
-import 'package:fluttur/components/inventory_item.dart';
+import 'inventory_item.dart';
+import '../framework/model.dart';
+import '../framework/store.dart';
 
 class InventoryList extends StatelessWidget {
+  final Store store;
   final List<Model> models;
   final String listName;
-  final Store itemStore;
-  InventoryList(this.itemStore, this.models, this.listName);
+
+  InventoryList(this.store, this.models, this.listName);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class InventoryList extends StatelessWidget {
         itemCount: models.length,
         itemBuilder: (BuildContext context, int index) {
           Model model = models[index];
-          return InventoryItem(itemStore, model);
+          return InventoryItem(model, store);
         });
   }
 }

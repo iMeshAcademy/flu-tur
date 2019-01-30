@@ -3,8 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:fluttur/inventory/inventorymodel.dart';
-import 'package:fluttur/inventory/units.dart';
+import '../inventory/inventorymodel.dart';
+import '../inventory/units.dart';
 
 class AddEditInventory extends StatefulWidget {
   final InventoryModel model;
@@ -40,11 +40,11 @@ class _AddInventoryState extends State<AddEditInventory> {
       _itemCostPerUnit = this.model.costPerUnit.toString();
     } else {
       _inventoryName = '';
-      _currentQuantity = '0.0';
-      _requiredQuantity = '0.0';
+      _currentQuantity = '0';
+      _requiredQuantity = '0';
       _unitValue = Unit.Grams.toString();
       _recurrenceValue = Recurrence.Daily.toString();
-      _itemCostPerUnit = '0.0';
+      _itemCostPerUnit = '0';
     }
   }
 
@@ -262,8 +262,8 @@ class _AddInventoryState extends State<AddEditInventory> {
         appBar: AppBar(
           title: Text(
             this.bIsEditing
-                ? "Edit Inventory"
-                : "Add to Inventory", // TODO - Include localization.
+                ? "Edit ${this._inventoryName}"
+                : "New Stock", // TODO - Include localization.
           ),
         ),
         body: Padding(
@@ -295,7 +295,7 @@ class _AddInventoryState extends State<AddEditInventory> {
                   ),
                   _createFormTextField(
                       "requiredQuantity",
-                      null != widget.model ? _requiredQuantity : '0.0',
+                      null != widget.model ? _requiredQuantity : '0',
                       "How much quantity you need?",
                       "Enter total stock needed",
                       false,

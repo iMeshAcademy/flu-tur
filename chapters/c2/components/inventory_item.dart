@@ -3,67 +3,66 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:fluttur/inventory/store.dart';
-import 'package:fluttur/inventory/inventorymodel.dart';
-import 'package:fluttur/inventory/storefactory.dart';
-import 'package:fluttur/inventory/units.dart';
-import 'package:fluttur/pages/add_edit_inventory.dart';
+import '../framework/store.dart';
+import '../framework/storefactory.dart';
+import '../inventory/inventorymodel.dart';
+import '../inventory/units.dart';
+import '../pages/add_edit_inventory.dart';
 
 class InventoryItem extends StatelessWidget {
-  final Store itemStore;
-  final InventoryModel inventoryModel;
-  InventoryItem(this.itemStore, this.inventoryModel);
+  final Store store;
+  final InventoryModel model;
+
+  InventoryItem(this.model, this.store);
 
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: Key(inventoryModel.key),
+      key: Key(model.key),
       onDismissed: (DismissDirection direction) async {
         // Just remove the item from the list.
-        await itemStore.remove(inventoryModel);
+        await store.remove(model);
       },
       child: ListTile(
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-            return AddEditInventory(inventoryModel);
+            return new AddEditInventory(model);
           }));
         },
         title: Text(
-          inventoryModel.itemName,
-          key: Key(inventoryModel.key),
+          model.itemName,
+          key: Key(model.key),
           style: Theme.of(context).textTheme.title,
         ),
         subtitle: Text(
           getDescription(),
-          key: Key(inventoryModel.key),
+          key: Key(model.key),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.subhead,
         ),
         trailing: Row(
-          key: Key(inventoryModel.key),
+          key: Key(model.key),
           children: <Widget>[
             IconButton(
               icon: Icon(Icons.add),
               onPressed: () async {
-                inventoryModel.updateQuantity(1);
-                await inventoryModel.save();
+                model.updateQuantity(1);
+                await model.save();
                 // Increase of decrease quantity.
               },
             ),
             IconButton(
               icon: Icon(Icons.remove),
               onPressed: () async {
-                inventoryModel.updateQuantity(-1);
-                await inventoryModel.save();
+                model.updateQuantity(-1);
+                await model.save();
               },
             ),
             IconButton(
               icon: Icon(Icons.delete),
               onPressed: () async {
-                await StoreFactory()
-                    .get("InventoryModel")
-                    .remove(inventoryModel);
+                await StoreFactory().get("InventoryModel").remove(model);
               },
             )
           ],
@@ -79,7 +78,7 @@ class InventoryItem extends StatelessWidget {
     String unitString = '';
     String rec = '';
 
-    switch (inventoryModel.unit) {
+    switch (model.unit) {
       case Unit.Grams:
         unitString = "grams";
         break;
@@ -102,7 +101,7 @@ class InventoryItem extends StatelessWidget {
         break;
     }
 
-    switch (inventoryModel.recurrence) {
+    switch (model.recurrence) {
       case Recurrence.BiWeekly:
         rec = "bi-weekly";
         break;
@@ -123,6 +122,6 @@ class InventoryItem extends StatelessWidget {
         break;
     }
 
-    return "$rec purchase. ${inventoryModel.currentQuantity} / ${inventoryModel.requiredQuantity} $unitString left.";
+    return "$rec purchase. ${model.currentQuantity} / ${model.requiredQuantity} $unitString left.";
   }
 }

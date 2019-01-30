@@ -1,7 +1,11 @@
+// Copyright (c) 2019, iMeshAcademy authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
 import 'package:flutter/material.dart';
-import 'package:fluttur/inventory/model.dart';
-import 'package:fluttur/inventory/storefactory.dart';
-import 'package:fluttur/inventory/inventorymodel.dart';
+import '../framework/model.dart';
+import '../framework/storefactory.dart';
+import '../inventory/inventorymodel.dart';
 
 class InventoryStat extends StatefulWidget {
   @override
@@ -13,6 +17,8 @@ class InventoryStat extends StatefulWidget {
 class _InventoryStatState extends State<InventoryStat> {
   VoidCallback oldCallbackFn;
   List<Model> _models = List<Model>();
+  int _totalInventoryItems = 0;
+  double _totalSum = 0.0;
 
   void onStoreChanged() {
     StoreFactory().get("InventoryModel").load().then((models) {
@@ -22,7 +28,7 @@ class _InventoryStatState extends State<InventoryStat> {
         // based on the items available.
         // Or, we might need to consolidate the total inventory here
         // and use that when we display drawer or other widgets.
-        this._models = models;
+        this._updateState(models);
       });
     });
   }
@@ -48,12 +54,20 @@ class _InventoryStatState extends State<InventoryStat> {
       // Some heavy operation is happening in store, so it won't send event's immediately. Let's fetch cached records insted.
       StoreFactory().get("InventoryModel").load().then((records) {
         setState(() {
-          this._models = records;
+          this._updateState(records);
         });
       });
     }
 
     super.initState();
+  }
+
+  void _updateState(List<Model> records) {
+    this._models = records;
+    this._totalInventoryItems = this._models.length;
+    this._models.forEach((m) => _totalSum +=
+        ((m as InventoryModel).costPerUnit *
+            (m as InventoryModel).currentQuantity));
   }
 
   didUpdateWidget(Widget oldWidget) {
@@ -77,12 +91,6 @@ class _InventoryStatState extends State<InventoryStat> {
         ),
         body: Center(
           child: Builder(builder: (context) {
-            var totalInventoryItems = this._models.length;
-            var totalSum = 0.0;
-            this._models.forEach((m) => totalSum +=
-                ((m as InventoryModel).costPerUnit *
-                    (m as InventoryModel).currentQuantity));
-
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -96,7 +104,7 @@ class _InventoryStatState extends State<InventoryStat> {
                 Padding(
                   padding: EdgeInsets.only(bottom: 24.0),
                   child: Text(
-                    '$totalInventoryItems',
+                    '$_totalInventoryItems',
                     key: Key("totalInventoryItems"),
                     style: Theme.of(context).textTheme.subhead,
                   ),
@@ -111,7 +119,7 @@ class _InventoryStatState extends State<InventoryStat> {
                 Padding(
                   padding: EdgeInsets.only(bottom: 24.0),
                   child: Text(
-                    "$totalSum",
+                    "$_totalSum",
                     key: Key("totalSum"),
                     style: Theme.of(context).textTheme.subhead,
                   ),

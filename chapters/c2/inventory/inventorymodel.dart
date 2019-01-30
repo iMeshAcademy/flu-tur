@@ -2,8 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:fluttur/inventory/model.dart';
-import 'package:fluttur/inventory/units.dart';
+import '../framework/model.dart';
+import 'units.dart';
 
 class InventoryModel extends Model {
   /// Fields in InventoryModel class.
@@ -15,9 +15,9 @@ class InventoryModel extends Model {
   double _requiredQuantity = 0.0;
   bool _isModified = false;
 
-  InventoryModel() : super(model: "InventoryModel");
+  InventoryModel() : super(modelName: "InventoryModel");
 
-  void parseJson(Map<String, Object> json) {
+  static InventoryModel fromJson(Map<String, Object> json) {
     // Following parameters are supposed to be there in the json.
     /// Name  - inventory name;
     /// Recurrence - The recurrance of the item.
@@ -28,14 +28,18 @@ class InventoryModel extends Model {
     ///
     ///
     if (null != json) {
-      this.key = json.containsKey("__id__") ? json["__id__"] : "";
-      this._inventoryItem = json["Name"];
-      this._recurrence = getRecurrenceFromString(json["Recurrence"]);
-      this._unit = getUnitFromString(json["Unit"]);
-      this._costPerUnit = json["Cost"] as double;
-      this._requiredQuantity = json["RequiredQuantity"] as double;
-      this._currentQuantity = json["CurrentQuantity"] as double;
+      InventoryModel model = new InventoryModel();
+      model.key = json.containsKey("__id__") ? json["__id__"] : "";
+      model._inventoryItem = json["Name"];
+      model._recurrence = getRecurrenceFromString(json["Recurrence"]);
+      model._unit = getUnitFromString(json["Unit"]);
+      model._costPerUnit = json["Cost"] as double;
+      model._requiredQuantity = json["RequiredQuantity"] as double;
+      model._currentQuantity = json["CurrentQuantity"] as double;
+      return model;
     }
+
+    return null;
   }
 
   @override

@@ -2,14 +2,20 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'framework/modelfactory.dart';
+import 'framework/storefactory.dart';
+import 'framework/filestorage.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:fluttur/inventory/storage/filestorage.dart';
-
-import 'package:fluttur/inventory/jsonstore.dart';
-import 'package:fluttur/inventory/storefactory.dart';
+import 'framework/jsonstore.dart';
+import 'inventory/inventorymodel.dart';
 
 class Config {
   final Map<String, String> _modelStoreConfig = {"InventoryModel": "JsonStore"};
+
+  final Map<String, CreateModelFunction> _generators = {
+    "InventoryModel": InventoryModel.fromJson
+  };
+
   static final Config _instance = new Config._();
   Config._();
 
@@ -32,10 +38,14 @@ class Config {
               key,
               new JsonStore(
                   modelName: key,
-                  storage: const FileStorage(
+                  storage: FileStorage(
                       "inventory.json", getApplicationDocumentsDirectory)));
           break;
       }
+    });
+
+    this._generators.forEach((modelname, func) {
+      ModelFactory.instance.attach(modelname, func);
     });
   }
 }
