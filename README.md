@@ -37,13 +37,11 @@ Another advantage is that you can use the MVC framework code to handle data effi
 
 Example - Saving data to DB. Here UI can just call save and wait for store update notification. 
 
->UI may display a progress indicator and block user from performing any operation until it receives notification from store.
-
-UI can relay on this store notifcation to update its inner state or perform additional rendering logi.
-
-
 ```Dart
 InventoryModel m = new InventoryModel();
 m.save();
 ```
 
+>UI may display a progress indicator and block user from performing any operation until it receives notification from store.
+
+UI can relay on this store notifcation to update its inner state or perform additional rendering logic.
