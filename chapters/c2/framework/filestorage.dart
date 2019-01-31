@@ -5,9 +5,6 @@
 import 'dart:io';
 import 'storage.dart';
 
-import 'package:mvc/framework/core/profiler.dart';
-import 'package:mvc/framework/core/profiler_data.dart';
-
 class FileStorage extends Storage<String> {
   final String fileName;
   final Future<Directory> Function() getDocumentDirectory;
@@ -28,13 +25,8 @@ class FileStorage extends Storage<String> {
 
   @override
   void save(dynamic data) async {
-    //Profiler.instance
-    //     .add(new ProfilerData("FileStorage", "Before Save", DateTime.now()));
     File f = await _getFile();
     await f.writeAsString(data);
-    // Profiler.instance
-    //     .add(new ProfilerData("FileStorage", "After Save", DateTime.now()));
-
     notifyEvents("onsave");
   }
 

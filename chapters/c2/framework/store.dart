@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/foundation.dart';
-import 'package:mvc/framework/core/event_emitter.dart';
+import 'core/event_emitter.dart';
 import 'model.dart';
 
 abstract class Store<T extends Model> extends EventEmitter {

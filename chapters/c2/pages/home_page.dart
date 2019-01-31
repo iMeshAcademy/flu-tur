@@ -10,8 +10,8 @@ import 'add_edit_inventory.dart';
 import '../inventory/inventorymodel.dart';
 import '../inventory/units.dart';
 import 'package:random_words/random_words.dart';
-import 'package:mvc/framework/core/profiler.dart';
-import 'package:mvc/framework/core/profiler_data.dart';
+import '../framework/core/profiler.dart';
+import '../framework/core/profiler_data.dart';
 
 class HomePage extends StatefulWidget {
   @override

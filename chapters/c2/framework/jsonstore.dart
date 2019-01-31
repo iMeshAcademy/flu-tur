@@ -10,9 +10,6 @@ import 'package:flutter/foundation.dart';
 import 'modelfactory.dart';
 import 'storage.dart';
 
-import 'package:mvc/framework/core/profiler.dart';
-import 'package:mvc/framework/core/profiler_data.dart';
-
 class JsonStore<T extends Model> extends Store<T> {
   List<T> _records = List<T>();
   final Mutex _m = new Mutex();
@@ -82,27 +79,15 @@ class JsonStore<T extends Model> extends Store<T> {
   @override
   void save() async {
     try {
-      //Profiler.instance.add(new ProfilerData(
-      //    "JsonStore", "Before Mutex Acquire", DateTime.now()));
-
       await _m.acquire();
       // Convert list to json encoded string.
-
-      // Profiler.instance
-      //    .add(new ProfilerData("JsonStore", "Before Convert", DateTime.now()));
 
       String toWrite = JsonEncoder().convert({
         "${this.modelName}":
             this._records.map((record) => record.toJson()).toList()
       });
 
-      // Profiler.instance
-      //     .add(new ProfilerData("JsonStore", "After Convert", DateTime.now()));
-
       storage.save(toWrite);
-
-      // Profiler.instance
-      //    .add(new ProfilerData("JsonStore", "After Await", DateTime.now()));
     } finally {
       _m.release();
     }

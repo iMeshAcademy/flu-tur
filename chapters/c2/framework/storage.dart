@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:mvc/framework/core/event_emitter.dart';
+import 'core/event_emitter.dart';
 
 abstract class Storage<T> extends EventEmitter {
   void save(T);
