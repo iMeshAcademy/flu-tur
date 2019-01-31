@@ -19,7 +19,6 @@ Sample code for using EventEmitter is as follows.
 ``` Dart
 StoreFactory().get("InventoryModel").addListener("onsave", onStoreChanged);
 
-StoreFactory().get("InventoryModel").addListener("onload", onStoreChanged);
 
 void onStoreChanged(String event, Object data) {
     debugPrint("Event $event received");
