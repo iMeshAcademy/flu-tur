@@ -369,7 +369,7 @@ class _AddInventoryState extends State<AddEditInventory> {
                   im.requiredQuantity = double.parse(_requiredQuantity);
                   im.currentQuantity = double.parse(_currentQuantity);
                   im.costPerUnit = double.parse(_itemCostPerUnit);
-                  await im.save();
+                  im.save();
                   Navigator.pop(context);
                 }
               },

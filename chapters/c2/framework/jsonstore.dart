@@ -10,6 +10,9 @@ import 'package:flutter/foundation.dart';
 import 'modelfactory.dart';
 import 'storage.dart';
 
+import 'package:mvc/framework/core/profiler.dart';
+import 'package:mvc/framework/core/profiler_data.dart';
+
 class JsonStore<T extends Model> extends Store<T> {
   List<T> _records = List<T>();
   final Mutex _m = new Mutex();
@@ -25,7 +28,7 @@ class JsonStore<T extends Model> extends Store<T> {
   }
 
   @override
-  Future<int> add(T record) async {
+  int add(T record) {
     if (record.modelName != modelName) {
       throw new Exception("Model doesn't match whle adding!");
     }
@@ -33,20 +36,22 @@ class JsonStore<T extends Model> extends Store<T> {
     _records.add(record);
     // Update the id field.
     record.key = "${record.modelName}__id__$count";
-    await super.add(record);
-
-    return 1;
+    return super.add(record);
   }
 
   @override
   Future<List<T>> load() async {
     if (this.isLoaded) {
-      return this._records;
+      return Future.value(this._records);
     }
     try {
       await _m.acquire();
+      if (this.isLoaded) {
+        return Future.value(this._records);
+      }
 
       final content = await storage.load();
+
       final jsonData = JsonDecoder().convert(content);
       final List<T> models = (jsonData[this.modelName])
           .map<T>((model) =>
@@ -60,60 +65,71 @@ class JsonStore<T extends Model> extends Store<T> {
       _m.release();
     }
 
-    return this._records;
+    notifyEvents("onload", this._records);
+    return Future.value(this._records);
   }
 
   @override
-  Future<int> remove(T model) async {
+  int remove(T model) {
     if (model.modelName != this.modelName) {
       throw new Exception("Model doesn't match whle adding!");
     }
 
-    int removed = _records.remove(model) ? 1 : 0;
-    await super.remove(model);
-    return removed;
+    _records.remove(model);
+    return super.remove(model);
   }
 
   @override
-  Future save() async {
+  void save() async {
     try {
+      //Profiler.instance.add(new ProfilerData(
+      //    "JsonStore", "Before Mutex Acquire", DateTime.now()));
+
       await _m.acquire();
       // Convert list to json encoded string.
+
+      // Profiler.instance
+      //    .add(new ProfilerData("JsonStore", "Before Convert", DateTime.now()));
 
       String toWrite = JsonEncoder().convert({
         "${this.modelName}":
             this._records.map((record) => record.toJson()).toList()
       });
 
-      await storage.save(toWrite);
+      // Profiler.instance
+      //     .add(new ProfilerData("JsonStore", "After Convert", DateTime.now()));
+
+      storage.save(toWrite);
+
+      // Profiler.instance
+      //    .add(new ProfilerData("JsonStore", "After Await", DateTime.now()));
     } finally {
       _m.release();
     }
-    await super.save();
+    super.save();
   }
 
   @override
-  Future<int> indexOf(T model) async {
+  int indexOf(T model) {
     return this._records.indexWhere((item) {
       return item.key == model.key;
     }, 0);
   }
 
   @override
-  Future<int> update(T record) {
-    return this.indexOf(record).then((index) async {
-      if (index >= 0) {
-        this._records.replaceRange(index, index + 1, [record]);
-        await super.update(record);
-        return 1;
-      }
-    });
+  int update(T record) {
+    int index = this.indexOf(record);
+    if (index >= 0) {
+      this._records.replaceRange(index, index + 1, [record]);
+      return super.update(record);
+    }
+    return 0;
   }
 
   @override
-  Future removeAll() async {
+  int removeAll() {
     _records.clear();
-    await super.removeAll();
+    return super.removeAll();
   }
 
   @override

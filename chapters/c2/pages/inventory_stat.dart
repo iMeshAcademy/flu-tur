@@ -15,12 +15,11 @@ class InventoryStat extends StatefulWidget {
 }
 
 class _InventoryStatState extends State<InventoryStat> {
-  VoidCallback oldCallbackFn;
   List<Model> _models = List<Model>();
   int _totalInventoryItems = 0;
   double _totalSum = 0.0;
 
-  void onStoreChanged() {
+  void onStoreChanged(String str, Object context, Object data) {
     StoreFactory().get("InventoryModel").load().then((models) {
       setState(() {
         // Perform any operations needed, if any!
@@ -33,20 +32,15 @@ class _InventoryStatState extends State<InventoryStat> {
     });
   }
 
-  void _updateCallbackAndListen() {
-    if (null != oldCallbackFn) {
-      StoreFactory().get("InventoryModel").removeListener(oldCallbackFn);
-      oldCallbackFn = null;
-    }
-
-    oldCallbackFn = this.onStoreChanged;
-    StoreFactory().get("InventoryModel").addListener(oldCallbackFn);
-  }
-
   @override
   void initState() {
     // Subscribe to events.
-    _updateCallbackAndListen();
+    StoreFactory()
+        .get("InventoryModel")
+        .addListener("onload", this, onStoreChanged);
+    StoreFactory()
+        .get("InventoryModel")
+        .addListener("onsave", this, onStoreChanged);
 
     // At times, it takes a while to load data, let's make sure that data is loaded.
     if (this._models.length == 0 &&
@@ -71,14 +65,12 @@ class _InventoryStatState extends State<InventoryStat> {
   }
 
   didUpdateWidget(Widget oldWidget) {
-    _updateCallbackAndListen();
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    StoreFactory().get("InventoryModel").removeListener(oldCallbackFn);
-    oldCallbackFn = null;
+    StoreFactory().get("InventoryModel").detachAllListeners(onStoreChanged);
     super.dispose();
   }
 

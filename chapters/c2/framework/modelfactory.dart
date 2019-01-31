@@ -6,7 +6,9 @@ import 'model.dart';
 
 /// Create model using model information and Json instance provided.
 
-typedef Model CreateModelFunction(Map<String, Object> param);
+typedef Model CreateModelFunction(
+  Map<String, Object> param,
+);
 
 class ModelFactory {
   static ModelFactory _factory = new ModelFactory._();

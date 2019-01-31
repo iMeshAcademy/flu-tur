@@ -2,7 +2,11 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-abstract class Storage<T> {
-  Future save(T);
+import 'dart:async';
+
+import 'package:mvc/framework/core/event_emitter.dart';
+
+abstract class Storage<T> extends EventEmitter {
+  void save(T);
   Future<T> load();
 }

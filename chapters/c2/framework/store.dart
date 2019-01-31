@@ -3,29 +3,12 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/foundation.dart';
+import 'package:mvc/framework/core/event_emitter.dart';
 import 'model.dart';
-import 'dart:async';
 
-abstract class Store<T extends Model> extends Listenable {
-  int _storeSyncVersion = 0;
-  int _microTastSyncVersion = 0;
+abstract class Store<T extends Model> extends EventEmitter {
   int _suspendEventCount = 0;
   int _transactionCount = 0;
-
-  List<VoidCallback> _listeners = List<VoidCallback>();
-
-  void addListener(VoidCallback listener) {
-    if (null != listener && this._listeners.contains(listener) == false) {
-      this._listeners.add(listener);
-      _notifyListeners();
-    }
-  }
-
-  void removeListener(VoidCallback listener) {
-    if (null != listener) {
-      this._listeners.remove(listener);
-    }
-  }
 
   void beginTransaction() {
     ++_transactionCount;
@@ -38,7 +21,7 @@ abstract class Store<T extends Model> extends Listenable {
     }
   }
 
-  Future commit() async {
+  void commit() async {
     if (_transactionCount > 0) {
       return;
     }
@@ -51,59 +34,50 @@ abstract class Store<T extends Model> extends Listenable {
 
   void resumeEvents() {
     --this._suspendEventCount;
-    if (this._suspendEventCount > 0) {
-      _notifyListeners();
+    if (this._suspendEventCount <= 0) {
+      notifyEvents("refresh");
+      this._suspendEventCount = 0;
     }
   }
 
-  Future _performSave() async {
+  void _performSave() {
     if (this._transactionCount == 0) {
-      await save();
-      return 1;
-    } else {
-      return 0;
+      save();
     }
   }
 
   @mustCallSuper
-  Future<int> add(T record) async {
-    return await _performSave();
+  int add(T record) {
+    _performSave();
+    return 1;
   }
 
   @mustCallSuper
-  Future<int> remove(T record) async {
-    return await _performSave();
+  int remove(T record) {
+    _performSave();
+    return 1;
   }
 
   @mustCallSuper
-  Future removeAll() async {
-    await _performSave();
+  int removeAll() {
+    _performSave();
+    return 1;
   }
 
   Future<List<T>> load();
 
   @mustCallSuper
-  Future<int> update(T record) async {
-    return await _performSave();
+  int update(T record) {
+    _performSave();
+    return 1;
   }
 
-  Future<int> indexOf(T model);
+  int indexOf(T model);
 
   @protected
   @mustCallSuper
-  Future save() {
-    _notifyListeners();
-    return null;
-  }
-
-  void _notifyListeners() {
-    if (_storeSyncVersion == _microTastSyncVersion) {
-      _storeSyncVersion++;
-      scheduleMicrotask(() {
-        this._listeners.forEach((listener) => listener());
-        _microTastSyncVersion++;
-      });
-    }
+  void save() {
+    notifyEvents("onsave");
   }
 
   int get count;

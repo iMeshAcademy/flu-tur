@@ -3,8 +3,10 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:io';
-
 import 'storage.dart';
+
+import 'package:mvc/framework/core/profiler.dart';
+import 'package:mvc/framework/core/profiler_data.dart';
 
 class FileStorage extends Storage<String> {
   final String fileName;
@@ -25,13 +27,19 @@ class FileStorage extends Storage<String> {
   }
 
   @override
-  Future save(dynamic data) async {
+  void save(dynamic data) async {
+    //Profiler.instance
+    //     .add(new ProfilerData("FileStorage", "Before Save", DateTime.now()));
     File f = await _getFile();
     await f.writeAsString(data);
+    // Profiler.instance
+    //     .add(new ProfilerData("FileStorage", "After Save", DateTime.now()));
+
+    notifyEvents("onsave");
   }
 
-  Future remove() async {
+  void remove() async {
     File f = await _getFile();
-    return f.delete();
+    f.delete();
   }
 }

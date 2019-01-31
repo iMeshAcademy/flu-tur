@@ -21,7 +21,7 @@ class InventoryItem extends StatelessWidget {
       key: Key(model.key),
       onDismissed: (DismissDirection direction) async {
         // Just remove the item from the list.
-        await store.remove(model);
+        store.remove(model);
       },
       child: ListTile(
         onTap: () {
@@ -46,23 +46,23 @@ class InventoryItem extends StatelessWidget {
           children: <Widget>[
             IconButton(
               icon: Icon(Icons.add),
-              onPressed: () async {
+              onPressed: () {
                 model.updateQuantity(1);
-                await model.save();
+                model.save();
                 // Increase of decrease quantity.
               },
             ),
             IconButton(
               icon: Icon(Icons.remove),
-              onPressed: () async {
+              onPressed: () {
                 model.updateQuantity(-1);
-                await model.save();
+                model.save();
               },
             ),
             IconButton(
               icon: Icon(Icons.delete),
               onPressed: () async {
-                await StoreFactory().get("InventoryModel").remove(model);
+                StoreFactory().get("InventoryModel").remove(model);
               },
             )
           ],

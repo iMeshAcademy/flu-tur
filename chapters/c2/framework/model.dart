@@ -14,13 +14,13 @@ abstract class Model {
   bool get isModified;
 
   Model({@required this.modelName});
-  Future save() async {
+  void save() async {
     if (isModified) {
       var store = StoreFactory().get(modelName);
       if (key.length > 0) {
-        await store.update(this);
+        store.update(this);
       } else {
-        await store.add(this);
+        store.add(this);
       }
     }
   }

@@ -10,6 +10,8 @@ import 'add_edit_inventory.dart';
 import '../inventory/inventorymodel.dart';
 import '../inventory/units.dart';
 import 'package:random_words/random_words.dart';
+import 'package:mvc/framework/core/profiler.dart';
+import 'package:mvc/framework/core/profiler_data.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,52 +22,67 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Model> _models = List<Model>();
-  VoidCallback oldCallbackFn;
   List<WordNoun> nouns = generateNoun().take(1000000).toList();
 
-  void onStoreChanged() {
+  void onStoreChanged(String event, Object context, Object data) {
+    if (event == "onsave" || event == "onload") {
+      Profiler.instance
+          .add(new ProfilerData("HomePage", "onStoreChanged", DateTime.now()));
+
+      Profiler.instance.print();
+      Profiler.instance.stop();
+      if (this.mounted) {
+        _loadRecords();
+      }
+    }
+    debugPrint("Event $event received");
+  }
+
+  void _loadRecords() {
     StoreFactory().get("InventoryModel").load().then((records) {
+      debugPrint("_loadRecords - records count - ${records.length}");
       setState(() {
         this._models = records;
       });
     });
   }
 
-  void _updateCallbackAndListen() {
-    // if (null != oldCallbackFn) {
-    //   StoreFactory().get("InventoryModel").removeListener(oldCallbackFn);
-    //   oldCallbackFn = null;
-    // }
-
-    oldCallbackFn = this.onStoreChanged;
-    StoreFactory().get("InventoryModel").addListener(oldCallbackFn);
-  }
-
   @override
   didUpdateWidget(Widget oldWidget) {
-    _updateCallbackAndListen();
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void initState() {
-    _updateCallbackAndListen();
+    // Load records , then attach listeners, to avoid duplicate load events.
+
+    StoreFactory()
+        .get("InventoryModel")
+        .addListener("onsave", this, onStoreChanged);
+    StoreFactory()
+        .get("InventoryModel")
+        .addListener("onload", this, onStoreChanged);
+
     super.initState();
   }
 
   @override
   void dispose() {
-    StoreFactory().get("InventoryModel").removeListener(onStoreChanged);
+    StoreFactory().get("InventoryModel").detachAllListeners(onStoreChanged);
     super.dispose();
   }
 
-  void _addBulkData() async {
+  Future _addBulkData() async {
     var store = StoreFactory().get("InventoryModel");
 
     store.suspendEvents();
     store.beginTransaction();
 
     int count = 100000;
+
+    Profiler.instance.start();
+    Profiler.instance
+        .add(new ProfilerData("HomePage", "Start Bulk Import", DateTime.now()));
 
     for (var i = 0; i < count; i++) {
       InventoryModel m = new InventoryModel();
@@ -76,12 +93,17 @@ class _HomePageState extends State<HomePage> {
       m.currentQuantity = i.toDouble();
       m.requiredQuantity = i * 2.toDouble();
 
-      await m.save();
+      store.add(m);
+      // m.save();
     }
+
+    Profiler.instance
+        .add(new ProfilerData("HomePage", "Stop Bulk Import", DateTime.now()));
+
     store.endTransaction();
 
     // Commit all pending at once.
-    await store.commit(); // Async task, you can use sync one if wanted.
+    store.commit(); // Async task, you can use sync one if wanted.
     store.resumeEvents();
   }
 
