@@ -3,8 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/foundation.dart';
-import 'core/event_emitter.dart';
 import 'model.dart';
+import 'package:eventify/eventify.dart' show EventEmitter;
 
 abstract class Store<T extends Model> extends EventEmitter {
   int _suspendEventCount = 0;
@@ -35,7 +35,7 @@ abstract class Store<T extends Model> extends EventEmitter {
   void resumeEvents() {
     --this._suspendEventCount;
     if (this._suspendEventCount <= 0) {
-      notifyEvents("refresh");
+      emit("refresh", this);
       this._suspendEventCount = 0;
     }
   }
@@ -77,7 +77,7 @@ abstract class Store<T extends Model> extends EventEmitter {
   @protected
   @mustCallSuper
   void save() {
-    notifyEvents("onsave");
+    emit("onsave", this);
   }
 
   int get count;

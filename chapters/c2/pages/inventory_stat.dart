@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:eventify/eventify.dart';
 import 'package:flutter/material.dart';
 import '../framework/model.dart';
 import '../framework/storefactory.dart';
@@ -19,7 +20,7 @@ class _InventoryStatState extends State<InventoryStat> {
   int _totalInventoryItems = 0;
   double _totalSum = 0.0;
 
-  void onStoreChanged(String str, Object context, Object data) {
+  void onStoreChanged(Event ev, Object context) {
     StoreFactory().get("InventoryModel").load().then((models) {
       setState(() {
         // Perform any operations needed, if any!
@@ -35,12 +36,8 @@ class _InventoryStatState extends State<InventoryStat> {
   @override
   void initState() {
     // Subscribe to events.
-    StoreFactory()
-        .get("InventoryModel")
-        .addListener("onload", this, onStoreChanged);
-    StoreFactory()
-        .get("InventoryModel")
-        .addListener("onsave", this, onStoreChanged);
+    StoreFactory().get("InventoryModel").on("onload", this, onStoreChanged);
+    StoreFactory().get("InventoryModel").on("onsave", this, onStoreChanged);
 
     // At times, it takes a while to load data, let's make sure that data is loaded.
     if (this._models.length == 0 &&
@@ -70,7 +67,7 @@ class _InventoryStatState extends State<InventoryStat> {
 
   @override
   void dispose() {
-    StoreFactory().get("InventoryModel").detachAllListeners(onStoreChanged);
+    StoreFactory().get("InventoryModel").removeAllByCallback(onStoreChanged);
     super.dispose();
   }
 

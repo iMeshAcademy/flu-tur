@@ -27,7 +27,7 @@ class FileStorage extends Storage<String> {
   void save(dynamic data) async {
     File f = await _getFile();
     await f.writeAsString(data);
-    notifyEvents("onsave");
+    emit("onsave",this);
   }
 
   void remove() async {

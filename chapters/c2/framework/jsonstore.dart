@@ -62,7 +62,7 @@ class JsonStore<T extends Model> extends Store<T> {
       _m.release();
     }
 
-    notifyEvents("onload", this._records);
+    emit("onload", this, this._records);
     return Future.value(this._records);
   }
 

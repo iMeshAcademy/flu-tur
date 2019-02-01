@@ -12,6 +12,7 @@ import '../inventory/units.dart';
 import 'package:random_words/random_words.dart';
 import '../framework/core/profiler.dart';
 import '../framework/core/profiler_data.dart';
+import 'package:eventify/eventify.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -24,8 +25,8 @@ class _HomePageState extends State<HomePage> {
   List<Model> _models = List<Model>();
   List<WordNoun> nouns = generateNoun().take(1000000).toList();
 
-  void onStoreChanged(String event, Object context, Object data) {
-    if (event == "onsave" || event == "onload") {
+  void onStoreChanged(Event ev, Object context) {
+    if (ev.eventName == "onsave" || ev.eventName == "onload") {
       Profiler.instance
           .add(new ProfilerData("HomePage", "onStoreChanged", DateTime.now()));
 
@@ -35,7 +36,7 @@ class _HomePageState extends State<HomePage> {
         _loadRecords();
       }
     }
-    debugPrint("Event $event received");
+    debugPrint("Event ${ev.eventName} received");
   }
 
   void _loadRecords() {
@@ -56,19 +57,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // Load records , then attach listeners, to avoid duplicate load events.
 
-    StoreFactory()
-        .get("InventoryModel")
-        .addListener("onsave", this, onStoreChanged);
-    StoreFactory()
-        .get("InventoryModel")
-        .addListener("onload", this, onStoreChanged);
+    StoreFactory().get("InventoryModel").on("onsave", this, onStoreChanged);
+    StoreFactory().get("InventoryModel").on("onload", this, onStoreChanged);
 
     super.initState();
   }
 
   @override
   void dispose() {
-    StoreFactory().get("InventoryModel").detachAllListeners(onStoreChanged);
+    StoreFactory().get("InventoryModel").removeAllByCallback(onStoreChanged);
     super.dispose();
   }
 

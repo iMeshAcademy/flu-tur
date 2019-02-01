@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'core/event_emitter.dart';
+import 'package:eventify/eventify.dart';
 
 abstract class Storage<T> extends EventEmitter {
   void save(T);
